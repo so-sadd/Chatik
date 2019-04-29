@@ -8,26 +8,14 @@ http.listen(1919, function () {
     console.log('Server run on port: 1919');
 });
 
-// io.on('connection', function (socket) {
-//     console.log('New user connectd: ' + socket.id)
-
-//     socket.on('SEND_MESSAGE', function (data) {
-//         io.emit('MESSAGE', data)
-//     });
-
-//     io.clients((clients) => {
-//         console.log(clients) // => [6em3d4TJP8Et9EMNAAAA, G5p55dHhGgUnLUctAAAB]
-//     });
-// });
-
 io.on('connection', (socket) => {
 
-    console.log('New user connectd: ' + socket.id)
+    console.log('User connected: ' + socket.id)
 
     socket.emit('connections', Object.keys(io.sockets.connected).length);
 
     socket.on('disconnect', () => {
-        console.log("A user disconnected" + socket.id);
+        console.log("User disconnected" + socket.id);
     });
 
     socket.on('chat-message', (data) => {
