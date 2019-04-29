@@ -1,8 +1,8 @@
 <template>
   <div id="main">
-    <div>
+    <!-- <div>
       <p v-for="user in info" v-bind:key="user.id">{{user.username}} {{user.type}}</p>
-    </div>
+    </div>-->
 
     <div id="my-head">
       <div id="owner-info">
@@ -29,28 +29,51 @@
           <input type="search" autocomplete="off" value="Поиск..." dir="auto">
         </div>
         <div id="chat-list" class="scrollbar">
-          <Chat/>
-          <Chat/>
-          <Chat/>
-          <Chat/>
-          <Chat/>
-          <Chat/>
-          <Chat/>
-          <Chat/>
-          <Chat/>
-          <Chat/>
-          <Chat/>
-          <Chat/>
-          <Chat/>
+          <div class="chat" v-for="(value, index) in users" :key="index">
+            <!-- <div id="chat-info-foto">Foto</div> -->
+            <div id="chat-n-s">
+              <div id="chat-name">
+                <a
+                  href="#"
+                  @click.prevent="selectedPage = value.chatname"
+                  style="display: block;
+                          height: 100%;
+                          width: 100%;
+                          text-decoration: none;"
+                >{{value.chatname}}</a>
+              </div>
+              <div id="chat-status">Chat Status</div>
+            </div>
+          </div>
+          <div class="chat">
+            <!-- <div id="chat-info-foto">Foto</div> -->
+            <div id="chat-n-s">
+              <div id="chat-name">
+                <a
+                  href="#"
+                  @click.prevent="selectedPage = 'Tako'"
+                  style="display: block;
+                          height: 100%;
+                          width: 100%;
+                          text-decoration: none;"
+                >Tako</a>
+              </div>
+              <div id="chat-status">Tako Status</div>
+            </div>
+          </div>
         </div>
       </div>
       <div id="right-side">
         <div id="chatting-area" class="scrollbar">
-          <div v-for="(value, index) in messages" :key="index">
-            <p>
-              <span class="font-weight-bold">{{ value.user }}:</span>
-              {{ value.message }}
-            </p>
+          <!-- <div id="chat-room" v-for="(value, index) in chatrooms" :key="index"> -->
+          <div id="chat-room" v-if="selectedPage === 'Pako'"> 
+            Some message is here!
+            <div v-for="(value, index) in messages" :key="index">
+              <p>
+                <span class="font-weight-bold">{{ value.user }}:</span>
+                {{ value.message }} 
+              </p>
+            </div>
           </div>
         </div>
         <div id="input-text">
@@ -80,6 +103,9 @@ export default {
     return {
       newMessage: null,
       messages: [],
+      users: [],
+      selectedPage: null,
+      // chatrooms: [],
       ready: false,
       typing: false,
       username: null,
@@ -102,6 +128,8 @@ export default {
     axios.get("http://localhost:1919/UserName").then(response => {
       this.username = response.data;
     });
+
+    // chatrooms = [];
   },
   created() {
     window.onbeforeunload = () => {
@@ -125,25 +153,13 @@ export default {
     });
 
     socket.on("joined", data => {
-      this.info.push({
-        username: data,
-        type: "joined"
+      this.users.push({
+        chatname: this.username
       });
-
-      setTimeout(() => {
-        this.info = [];
-      }, 3000);
     });
 
     socket.on("leave", data => {
-      this.info.push({
-        username: data,
-        type: "left"
-      });
-
-      setTimeout(() => {
-        this.info = [];
-      }, 3000);
+      this.users.splice(this.username, 1);
     });
   },
   methods: {
@@ -159,6 +175,10 @@ export default {
         user: this.username
       });
       this.newMessage = null;
+    // },
+
+    // showChatRoom(){
+
     }
   }
 };
