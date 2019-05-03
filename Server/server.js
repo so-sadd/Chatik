@@ -8,14 +8,17 @@ http.listen(1919, function () {
     console.log('Server run on port: 1919');
 });
 
+var connectedUsers = {};
+
 io.on('connection', (socket) => {
 
     console.log('User connected: ' + socket.id)
-
-    socket.emit('connections', Object.keys(io.sockets.connected).length);
+    //connectedUsers.push({ data: socket.id });
+    //socket.emit('connections', Object.keys(io.sockets.connected).length);
 
     socket.on('disconnect', () => {
         console.log("User disconnected" + socket.id);
+        //delete connectedUsers[data];
     });
 
     socket.on('chat-message', (data) => {
@@ -30,16 +33,17 @@ io.on('connection', (socket) => {
         socket.broadcast.emit('stopTyping');
     });
 
-    socket.on('joined', (data) => {
-        socket.broadcast.emit('joined', (data));
+    socket.on('joined', function (nickname) {
+        socket.broadcast.emit('joined', (nickname));
+        connectedUsers[nickname] = socket.id;
     });
 
-    socket.on('leave', (data) => {
-        socket.broadcast.emit('leave', (data));
+    socket.on('leave', function (nickname) {
+        socket.broadcast.emit('leave', (nickname));
+        delete connectedUsers[nickname];
     });
 });
 
 app.use(cors());
-//app.get('/UserName', (req, res) => res.send('{ "userName": "' + os.userInfo().username + '" }'));
 app.get('/UserName', (req, res) => res.send(os.userInfo().username));
-//app.get('/ConnectedUsers', (req, res) => res.send(connUsers));
+app.get('/ConnectedUsers', (req, res) => res.send(connectedUsers));
