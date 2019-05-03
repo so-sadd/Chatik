@@ -70,18 +70,14 @@
 </template>
 
 <script>
-//import Chat from "./components/Chat.vue";
 import axios from "axios";
 import io from "socket.io-client";
 import db from "./db.js";
 
-var socket = io("localhost:1919");
-var inputName;
+let socket;
+let inputName;
 
 export default {
-  // components: {
-  //   Chat
-  // },
   data() {
     return {
       newMessage: null,
@@ -95,97 +91,92 @@ export default {
   watch: {
     newMessage() {
       socket.emit("typing", inputName);
-
       setTimeout(() => {
         socket.emit("stopTyping");
       }, 800);
     }
   },
-  mounted() {
-    inputName = window.prompt("Enter Your User Name");
-    this.username = inputName;
 
+  created() {
+    this.username = window.prompt("Enter Your User Name");
+
+    socket = io("localhost:1919", { reconnection: false });
     socket.emit("joined", this.username);
 
+    window.onbeforeunload = () => {
+      socket.emit("leave", socket.id);
+    };
+
+    // socket.on("chat-message", data => {
+    //   this.messages.push({
+    //     message: data.message,
+    //     type: 1,
+    //     user: data.user
+    //   });
+    //   var sysdate = new Date();
+    //   db.chatstore.put({
+    //     chatname: data.user,
+    //     msgtime: sysdate,
+    //     msg: data.message
+    //   });
+    // });
+    // socket.on("typing", data => {
+    //   this.typing = data;
+    // });
+    // socket.on("stopTyping", () => {
+    //   this.typing = false;
+    // });
+    // socket.on("joined", nickname => {
+    //   this.users.push({
+    //     chatname: nickname
+    //   });
+    //   //db.chatname.put({ name: nickname });
+    // });
+    // socket.on("leave", name => {
+    //   db.online_users
+    //     .where("name")
+    //     .equals(name)
+    //     .delete();
+    // });
+  },
+  mounted() {
     // axios.get("http://localhost:1919/UserName").then(response => {
     //   this.username = response.data;
     // });
-
-    axios.get("http://localhost:1919/ConnectedUsers").then(response => {
-      for (element in response.data) {
-        //db.chatname.put({ name: element, id: response.data[element] });
-
-        this.users.push({
-          chatname: element
-        });
-      }
-    });
-  },
-  created() {
-    window.onbeforeunload = () => {
-      socket.emit("leave", inputName);
-      db.delete();
-    };
-
-    socket.on("chat-message", data => {
-      // this.messages.push({
-      //   message: data.message,
-      //   type: 1,
-      //   user: data.user
-      // });
-
-      // var sysdate = new Date();
-      // db.chatstore.put({
-      //   chatname: data.user,
-      //   msgtime: sysdate,
-      //   msg: data.message
-      // });
-    });
-
-    socket.on("typing", data => {
-      this.typing = data;
-    });
-
-    socket.on("stopTyping", () => {
-      this.typing = false;
-    });
-
-    socket.on("joined", nickname => {
-      this.users.push({
-        chatname: nickname
-      });
-      //db.chatname.put({ name: nickname });
-    });
-
-    socket.on("leave", nickname => {
-      this.users.splice(nickname, 1);
-
-      db.chatname
-        .where("name")
-        .equals(nickname)
-        .delete();
-    });
+    // axios.get("http://localhost:1919/ConnectedUsers").then(response => {
+    //   for (var element in response.data) {
+    //     db.online_users.put({ name: element, id: response.data[element] });
+    //     // this.users.push({
+    //     //   chatname: element
+    //     // });
+    //   }
+    // });
   },
   methods: {
     sendMessage() {
-      this.messages.push({
-        message: this.newMessage,
-        type: 0,
-        user: "Me"
-      });
+      // this.messages.push({
+      //   message: this.newMessage,
+      //   type: 0,
+      //   user: "Me"
+      // });
+      // socket.emit("chat-message", {
+      //   message: this.newMessage,
+      //   user: inputName
+      // });
+      // this.newMessage = null;
 
-      socket.emit("chat-message", {
-        message: this.newMessage,
-        user: inputName
-      });
-      this.newMessage = null;
-
-      var sysdate = new Date();
+      // var sysdate = new Date();
       // db.chatstore.put({
       //   chatname: inputName,
       //   msgtime: sysdate,
       //   msg: this.newMessage
       // });
+
+      socket.emit("getCounter", function(counter) {
+        console.log("Counter is:", counter);
+      });
+
+      this.newMessage = null;
     }
   }
 };

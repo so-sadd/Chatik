@@ -8,41 +8,47 @@ http.listen(1919, function () {
     console.log('Server run on port: 1919');
 });
 
-var connectedUsers = {};
+let connectedUsers = {};
 
-io.on('connection', (socket) => {
+io.on('connection', OnConnect);
 
-    console.log('User connected: ' + socket.id)
-    //connectedUsers.push({ data: socket.id });
-    //socket.emit('connections', Object.keys(io.sockets.connected).length);
+function OnConnect(socket) {
+
+    console.log('Connected: ' + socket.id)
 
     socket.on('disconnect', () => {
-        console.log("User disconnected" + socket.id);
-        //delete connectedUsers[data];
+        console.log("Disconnected:" + socket.id);
+        delete connectedUsers[socket.id];
     });
 
-    socket.on('chat-message', (data) => {
-        socket.broadcast.emit('chat-message', (data));
+    // socket.on('chat-message', (data) => {
+    //     socket.broadcast.emit('chat-message', (data));
+    // });
+
+    // socket.on('typing', (data) => {
+    //     socket.broadcast.emit('typing', (data));
+    // });
+
+    // socket.on('stopTyping', () => {
+    //     socket.broadcast.emit('stopTyping');
+    // });
+
+    socket.on('joined', function (user_name) {
+        // socket.broadcast.emit('joined', { id: name });
+        connectedUsers[socket.id] = user_name;
+        console.log('Joined:' + user_name);
     });
 
-    socket.on('typing', (data) => {
-        socket.broadcast.emit('typing', (data));
+    socket.on('leave', function (user_id) {
+        // socket.broadcast.emit('leave', userid);
+        delete connectedUsers[user_id];
+        console.log('Leaved:' + user_id);
     });
 
-    socket.on('stopTyping', () => {
-        socket.broadcast.emit('stopTyping');
+    socket.on('getCounter', function (callback) {
+        callback(connectedUsers);
     });
-
-    socket.on('joined', function (nickname) {
-        socket.broadcast.emit('joined', (nickname));
-        connectedUsers[nickname] = socket.id;
-    });
-
-    socket.on('leave', function (nickname) {
-        socket.broadcast.emit('leave', (nickname));
-        delete connectedUsers[nickname];
-    });
-});
+};
 
 app.use(cors());
 app.get('/UserName', (req, res) => res.send(os.userInfo().username));
