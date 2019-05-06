@@ -12,11 +12,15 @@
         </div>
         <button @click="ShowOnlineUsers">Toggle</button>
       </div>
-      <div id="chat-info" v-for="(value, index) in chattingUser" :key="index">
+      <div
+        id="current-chatting-user-info"
+        v-for="(value, index) in currentChattingUser"
+        :key="index"
+      >
         <!-- <div id="chat-info-foto">Foto</div> -->
-        <div id="chat-info-n-s">
-          <div id="chat-info-name">{{value.pName}}</div>
-          <div id="chat-info-status">{{value.pStatus}}</div>
+        <div id="current-chatting-user-info-n-s">
+          <div id="current-chatting-user-info-name">{{value.name}}</div>
+          <div id="current-chatting-user-info-status">{{value.status}}</div>
         </div>
       </div>
     </div>
@@ -26,23 +30,30 @@
           <input type="search" autocomplete="off" value="Поиск..." dir="auto">
         </div>
         <div id="chatting-users" class="scrollbar" v-if="show" key="1">
-          <div class="chatting-user" v-for="(value, index) in chattingUsers" :key="index">
+          <div
+            tabindex="-1"
+            class="chatting-user"
+            v-for="(value, index) in chattingUsers"
+            :key="index"
+            @click="SelectUserForChatting(false, value.id, value.name)"
+          >
             <!-- <div id="chat-info-foto">Foto</div> -->
             <div class="chatting-user-n-s">
-              <div class="chatting-user-name">
-                <a href="#">{{value.name}}</a>
-              </div>
+              <div class="chatting-user-name">{{value.name}}</div>
               <div class="chatting-user-status">{{value.id}}</div>
             </div>
           </div>
         </div>
         <div id="online-users" class="scrollbar" v-else key="2">
-          <div class="online-user" v-for="(value, index) in onlineUsers" :key="index">
+          <div
+            class="online-user"
+            v-for="(value, index) in onlineUsers"
+            :key="index"
+            @click="SelectUserForChatting(true, value.id, value.name)"
+          >
             <!-- <div id="chat-info-foto">Foto</div> -->
             <div class="online-user-n-s">
-              <div class="online-user-name">
-                <a href="#" @click="SelectUserForChatting(value.name, value.id)">{{value.name}}</a>
-              </div>
+              <div class="online-user-name">{{value.name}}</div>
               <div class="online-user-status">{{value.id}}</div>
             </div>
           </div>
@@ -54,7 +65,7 @@
           <div id="chat-room">
             <div v-for="(value, index) in messages" :key="index">
               <p>
-                <span class="font-weight-bold">{{ value.user }}:</span>
+                <span class="font-weight-bold">{{ value.sender }}:</span>
                 {{ value.message }}
               </p>
             </div>
@@ -90,17 +101,17 @@ export default {
       info: [],
       show: true,
       onlineUsers: [],
-      chattingUser: [],
+      currentChattingUser: [],
       chattingUsers: []
     };
   },
   watch: {
-    newMessage() {
-      socket.emit("typing", inputName);
-      setTimeout(() => {
-        socket.emit("stopTyping");
-      }, 800);
-    }
+    // newMessage() {
+    //   socket.emit("typing", inputName);
+    //   setTimeout(() => {
+    //     socket.emit("stopTyping");
+    //   }, 800);
+    // }
   },
 
   created() {
@@ -138,10 +149,33 @@ export default {
     //   this.typing = false;
     // });
 
+    socket.on("message", data => {
+      // this.messages.push({
+      //   private: data.private,
+      //   sender: data.sender,
+      //   reciever: data.reciever,
+      //   message: data.message
+      // });
+
+      db.chatstore.put({
+        room: data.sender,
+        msg_from: data.sender,
+        msg_to: data.reciever,
+        msg_time: new Date(),
+        msg: data.message
+      });
+
+      db.chatstore.toArray().then(data => {
+        this.messages = data;
+      });
+    });
+
     socket.on("joined", data => {
       db.online_users.put({ id: data.id, name: data.name });
 
-      // console.log("socket.on(joined)" + data.id + ' ' + data.name);
+      db.online_users.toArray().then(data => {
+        this.onlineUsers = data;
+      });
     });
 
     socket.on("leave", user_id => {
@@ -149,41 +183,49 @@ export default {
         .where("id")
         .equals(user_id)
         .delete();
-
-      // console.log("socket.on(leave)");
     });
   },
   mounted() {
     // socket.emit("os-user-name", function(name) {
     //   this.username = name;
     // });
-    //console.log("mounted()");
+
     socket.emit("connected-users", function(data) {
       for (let element in data) {
         db.online_users.put({ id: element, name: data[element] });
       }
     });
-    // console.log("connected-users");
   },
   methods: {
     sendMessage() {
-      // this.messages.push({
-      //   message: this.newMessage,
-      //   type: 0,
-      //   user: "Me"
-      // });
-      // socket.emit("chat-message", {
-      //   message: this.newMessage,
-      //   user: inputName
-      // });
-      // this.newMessage = null;
 
-      // var sysdate = new Date();
-      // db.chatstore.put({
-      //   chatname: inputName,
-      //   msgtime: sysdate,
-      //   msg: this.newMessage
+      console.log();
+
+      socket.emit("message", {
+        private: true,
+        sender: this.username,
+        reciever: this.currentChattingUser[0].name,
+        message: this.newMessage
+      });
+
+      // this.messages.push({
+      //   private: true,
+      //   sender: this.username,
+      //   reciever: this.currentChattingUser[0].name,
+      //   message: this.newMessage
       // });
+
+      db.chatstore.put({
+        room: this.currentChattingUser[0].name,
+        msg_from: this.username,
+        msg_to: this.currentChattingUser[0].name,
+        msg_time: new Date(),
+        msg: this.newMessage
+      });
+
+      db.online_users.toArray().then(data => {
+        this.messages = data;
+      });
 
       this.newMessage = null;
     },
@@ -196,9 +238,22 @@ export default {
       });
     },
 
-    SelectUserForChatting(name, id) {
-      this.show = true;
-      this.chattingUser = [{ pName: name, pStatus: id }];
+    SelectUserForChatting(pFromOnlineUsers, pId, pName) {
+      if (pFromOnlineUsers) {
+        this.show = true;
+        db.chatting_users.put({ id: pId, name: pName });
+
+        db.chatstore.toArray().then(data => {
+          this.messages = data;
+        });
+      }
+
+      this.currentChattingUser = [];
+      this.currentChattingUser.push({ name: pName, status: pId });
+
+      db.chatting_users.toArray().then(data => {
+        this.chattingUsers = data;
+      });
     }
   }
 };

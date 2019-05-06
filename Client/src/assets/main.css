@@ -9,7 +9,6 @@ html, body {
 
 #main {
     background: white;
-    /* border: 1px solid black; */
     max-width: 1010px;
     min-width: 300px;
     margin: 0 auto;
@@ -17,9 +16,8 @@ html, body {
 }
 
 #my-head {
-    /* border-bottom: 1px solid black; */
     width: 100%;
-    height: 8%;
+    height: 7%;
     display: flex;
     flex-direction: row;
     color: white;
@@ -27,7 +25,6 @@ html, body {
 }
 
 #owner-info {
-    /* border-right: 1px solid black; */
     height: 100%;
     width: 30%;
     display: flex;
@@ -37,7 +34,7 @@ html, body {
     box-sizing: border-box;
 }
 
-#chat-info {
+#current-chatting-user-info {
     height: 100%;
     width: 70%;
     display: flex;
@@ -49,16 +46,22 @@ html, body {
 
 #my-body {
     width: 100%;
-    height: 92%;
+    height: 93%;
     display: flex;
     flex-direction: row;
     box-shadow: 1px #dfe5ec;
     border-bottom: 1px solid #d2dbe3;
+    box-sizing: border-box
 }
+
+/* @media only screen and (max-height: 950px) {
+    #my-body {
+        height: 80%;
+    }
+  } */
 
 #left-side {
     border-right: 1px solid rgb(218, 215, 215);
-    ;
     height: 100%;
     width: 30%;
 }
@@ -81,40 +84,47 @@ html, body {
 
 .chatting-user {
     border-bottom: 1px solid rgb(218, 215, 215);
-    height: 10%;
+    height: 6%;
+    min-height: 50px;
     display: flex;
     flex-direction: row;
     align-items: center;
     padding-left: 10px;
     box-sizing: border-box;
+    cursor: pointer;
 }
 
-.chatting-user-name a {
-    display: block;
-    height: 100%;
-    width: 100%;
-    text-decoration: none;
+div.chatting-user:focus {
+    background-color: deeppink;
+}
+
+div.chatting-user:hover {
+    background-color: darkgreen;
+}
+
+div.chatting-user:active {
+    background-color: cornflowerblue;
 }
 
 #online-users {
     height: 94%;
+    background-color: coral;
 }
 
 .online-user {
     border-bottom: 1px solid rgb(218, 215, 215);
-    height: 10%;
+    height: 6%;
+    min-height: 50px;
     display: flex;
     flex-direction: row;
     align-items: center;
     padding-left: 10px;
     box-sizing: border-box;
+    cursor: pointer;
 }
 
-.online-user-name a {
-    display: block;
-    height: 100%;
-    width: 100%;
-    text-decoration: none;
+div.online-user:hover {
+    background-color: yellow;
 }
 
 #right-side {
