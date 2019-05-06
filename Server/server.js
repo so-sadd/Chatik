@@ -1,8 +1,7 @@
 const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
-const os = require('os');
-const cors = require('cors');
+const os = require('os'); //
 
 http.listen(1919, function () {
     console.log('Server run on port: 1919');
@@ -10,9 +9,7 @@ http.listen(1919, function () {
 
 let connectedUsers = {};
 
-io.on('connection', OnConnect);
-
-function OnConnect(socket) {
+io.on('connection', function (socket) {
 
     console.log('Connected: ' + socket.id)
 
@@ -21,7 +18,7 @@ function OnConnect(socket) {
         delete connectedUsers[socket.id];
     });
 
-    // socket.on('chat-message', (data) => {
+    // socket.on('send-message-to-all', (data) => {
     //     socket.broadcast.emit('chat-message', (data));
     // });
 
@@ -29,27 +26,27 @@ function OnConnect(socket) {
     //     socket.broadcast.emit('typing', (data));
     // });
 
-    // socket.on('stopTyping', () => {
+    // socket.on('stop-typing', () => {
     //     socket.broadcast.emit('stopTyping');
     // });
 
     socket.on('joined', function (user_name) {
-        // socket.broadcast.emit('joined', { id: name });
+        socket.broadcast.emit('joined', { id: socket.id, name: user_name });
         connectedUsers[socket.id] = user_name;
         console.log('Joined:' + user_name);
     });
 
     socket.on('leave', function (user_id) {
-        // socket.broadcast.emit('leave', userid);
+        socket.broadcast.emit('leave', user_id);
         delete connectedUsers[user_id];
         console.log('Leaved:' + user_id);
     });
 
-    socket.on('getCounter', function (callback) {
+    socket.on('connected-users', function (callback) {
         callback(connectedUsers);
     });
-};
 
-app.use(cors());
-app.get('/UserName', (req, res) => res.send(os.userInfo().username));
-app.get('/ConnectedUsers', (req, res) => res.send(connectedUsers));
+    socket.on('os-user-name', function (callback) {
+        callback(os.userInfo().username);
+    });
+});
