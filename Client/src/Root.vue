@@ -10,7 +10,8 @@
           <div id="owner-status">Owner Status</div>
           <small v-if="typing" style="color:white">{{typing}} is typing</small>
         </div>
-        <button @click="ShowOnlineUsers">Toggle</button>
+        <!-- <button @click="ShowOnlineUsers">Toggle</button> -->
+        <div id="new-chat" @click="ShowOnlineUsers"></div>
       </div>
       <div
         id="current-chatting-user-info"
@@ -27,7 +28,7 @@
     <div id="my-body">
       <div id="left-side">
         <div id="search-chat">
-          <input type="search" autocomplete="off" value="Поиск..." dir="auto">
+          <input type="search" autocomplete="off" value="Муляж..." dir="auto">
         </div>
         <div id="chatting-users" class="scrollbar" v-if="show" key="1">
           <div
@@ -65,8 +66,8 @@
           <div id="chat-room">
             <div v-for="(value, index) in messages" :key="index">
               <p>
-                <span class="font-weight-bold">{{ value.sender }}:</span>
-                {{ value.message }}
+                <span class="font-weight-bold">{{ value.msg_from }}:</span>
+                {{ value.msg }}
               </p>
             </div>
           </div>
@@ -129,34 +130,17 @@ export default {
       socket.emit("leave", socket.id);
     };
 
-    // socket.on("chat-message", data => {
-    //   this.messages.push({
-    //     message: data.message,
-    //     type: 1,
-    //     user: data.user
-    //   });
-    //   var sysdate = new Date();
-    //   db.chatstore.put({
-    //     chatname: data.user,
-    //     msgtime: sysdate,
-    //     msg: data.message
-    //   });
-    // });
+    this.currentChattingUser.push({ name: null, status: null });
+
     // socket.on("typing", data => {
     //   this.typing = data;
     // });
+
     // socket.on("stopTyping", () => {
     //   this.typing = false;
     // });
 
     socket.on("message", data => {
-      // this.messages.push({
-      //   private: data.private,
-      //   sender: data.sender,
-      //   reciever: data.reciever,
-      //   message: data.message
-      // });
-
       db.chatstore.put({
         room: data.sender,
         msg_from: data.sender,
@@ -165,9 +149,14 @@ export default {
         msg: data.message
       });
 
-      db.chatstore.toArray().then(data => {
-        this.messages = data;
-      });
+      this.messages = [];
+      db.chatstore
+        .where("room")
+        .equals(this.currentChattingUser[0].name)
+        .toArray()
+        .then(data => {
+          this.messages = data;
+        });
     });
 
     socket.on("joined", data => {
@@ -198,7 +187,6 @@ export default {
   },
   methods: {
     sendMessage() {
-
       console.log();
 
       socket.emit("message", {
@@ -207,13 +195,6 @@ export default {
         reciever: this.currentChattingUser[0].name,
         message: this.newMessage
       });
-
-      // this.messages.push({
-      //   private: true,
-      //   sender: this.username,
-      //   reciever: this.currentChattingUser[0].name,
-      //   message: this.newMessage
-      // });
 
       db.chatstore.put({
         room: this.currentChattingUser[0].name,
@@ -226,6 +207,15 @@ export default {
       db.online_users.toArray().then(data => {
         this.messages = data;
       });
+
+      this.messages = [];
+      db.chatstore
+        .where("room")
+        .equals(this.currentChattingUser[0].name)
+        .toArray()
+        .then(data => {
+          this.messages = data;
+        });
 
       this.newMessage = null;
     },
@@ -254,6 +244,15 @@ export default {
       db.chatting_users.toArray().then(data => {
         this.chattingUsers = data;
       });
+
+      this.messages = [];
+      db.chatstore
+        .where("room")
+        .equals(this.currentChattingUser[0].name)
+        .toArray()
+        .then(data => {
+          this.messages = data;
+        });
     }
   }
 };
