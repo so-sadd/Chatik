@@ -10,15 +10,13 @@
           <div id="owner-status">Owner Status</div>
           <small v-if="typing" style="color:white">{{typing}} is typing</small>
         </div>
-        <!-- <div>
-          <button id="show-modal" @click="showModal = true">New</button>
-        </div>-->
+        <button @click="ShowOnlineUsers">Toggle</button>
       </div>
-      <div id="chat-info">
+      <div id="chat-info" v-for="(value, index) in chattingUser" :key="index">
         <!-- <div id="chat-info-foto">Foto</div> -->
         <div id="chat-info-n-s">
-          <div id="chat-info-name">Chat Info Name</div>
-          <div id="chat-info-status">Chat Info Status</div>
+          <div id="chat-info-name">{{value.pName}}</div>
+          <div id="chat-info-status">{{value.pStatus}}</div>
         </div>
       </div>
     </div>
@@ -27,20 +25,25 @@
         <div id="search-chat">
           <input type="search" autocomplete="off" value="Поиск..." dir="auto">
         </div>
-        <div id="chat-list" class="scrollbar">
-          <div class="chat" v-for="(value, index) in users" :key="index">
+        <div id="chatting-users" class="scrollbar" v-if="show" key="1">
+          <div class="chatting-user" v-for="(value, index) in chattingUsers" :key="index">
             <!-- <div id="chat-info-foto">Foto</div> -->
-            <div id="chat-n-s">
-              <div id="chat-name">
-                <a
-                  href="#"
-                  style="display: block;
-                          height: 100%;
-                          width: 100%;
-                          text-decoration: none;"
-                >{{value.chatname}}</a>
+            <div class="chatting-user-n-s">
+              <div class="chatting-user-name">
+                <a href="#">{{value.name}}</a>
               </div>
-              <div id="chat-status">Chat Status</div>
+              <div class="chatting-user-status">{{value.id}}</div>
+            </div>
+          </div>
+        </div>
+        <div id="online-users" class="scrollbar" v-else key="2">
+          <div class="online-user" v-for="(value, index) in onlineUsers" :key="index">
+            <!-- <div id="chat-info-foto">Foto</div> -->
+            <div class="online-user-n-s">
+              <div class="online-user-name">
+                <a href="#" @click="SelectUserForChatting(value.name, value.id)">{{value.name}}</a>
+              </div>
+              <div class="online-user-status">{{value.id}}</div>
             </div>
           </div>
         </div>
@@ -70,7 +73,6 @@
 </template>
 
 <script>
-import axios from "axios";
 import io from "socket.io-client";
 import db from "./db.js";
 
@@ -85,7 +87,11 @@ export default {
       users: [],
       typing: false,
       username: null,
-      info: []
+      info: [],
+      show: true,
+      onlineUsers: [],
+      chattingUser: [],
+      chattingUsers: []
     };
   },
   watch: {
@@ -98,12 +104,17 @@ export default {
   },
 
   created() {
+    // console.log("created()");
     this.username = window.prompt("Enter Your User Name");
 
     socket = io("localhost:1919", { reconnection: false });
+    // console.log("localhost:1919");
+
     socket.emit("joined", this.username);
+    // console.log("socket.emit(joined)");
 
     window.onbeforeunload = () => {
+      db.delete();
       socket.emit("leave", socket.id);
     };
 
@@ -126,31 +137,33 @@ export default {
     // socket.on("stopTyping", () => {
     //   this.typing = false;
     // });
-    // socket.on("joined", nickname => {
-    //   this.users.push({
-    //     chatname: nickname
-    //   });
-    //   //db.chatname.put({ name: nickname });
-    // });
-    // socket.on("leave", name => {
-    //   db.online_users
-    //     .where("name")
-    //     .equals(name)
-    //     .delete();
-    // });
+
+    socket.on("joined", data => {
+      db.online_users.put({ id: data.id, name: data.name });
+
+      // console.log("socket.on(joined)" + data.id + ' ' + data.name);
+    });
+
+    socket.on("leave", user_id => {
+      db.online_users
+        .where("id")
+        .equals(user_id)
+        .delete();
+
+      // console.log("socket.on(leave)");
+    });
   },
   mounted() {
-    // axios.get("http://localhost:1919/UserName").then(response => {
-    //   this.username = response.data;
+    // socket.emit("os-user-name", function(name) {
+    //   this.username = name;
     // });
-    // axios.get("http://localhost:1919/ConnectedUsers").then(response => {
-    //   for (var element in response.data) {
-    //     db.online_users.put({ name: element, id: response.data[element] });
-    //     // this.users.push({
-    //     //   chatname: element
-    //     // });
-    //   }
-    // });
+    //console.log("mounted()");
+    socket.emit("connected-users", function(data) {
+      for (let element in data) {
+        db.online_users.put({ id: element, name: data[element] });
+      }
+    });
+    // console.log("connected-users");
   },
   methods: {
     sendMessage() {
@@ -172,11 +185,20 @@ export default {
       //   msg: this.newMessage
       // });
 
-      socket.emit("getCounter", function(counter) {
-        console.log("Counter is:", counter);
-      });
-
       this.newMessage = null;
+    },
+
+    ShowOnlineUsers() {
+      this.show = !this.show;
+
+      db.online_users.toArray().then(data => {
+        this.onlineUsers = data;
+      });
+    },
+
+    SelectUserForChatting(name, id) {
+      this.show = true;
+      this.chattingUser = [{ pName: name, pStatus: id }];
     }
   }
 };
