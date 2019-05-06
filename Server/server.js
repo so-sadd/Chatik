@@ -18,9 +18,15 @@ io.on('connection', function (socket) {
         delete connectedUsers[socket.id];
     });
 
-    // socket.on('send-message-to-all', (data) => {
-    //     socket.broadcast.emit('chat-message', (data));
-    // });
+    socket.on('message', function (data) {
+
+        let id = Object.keys(connectedUsers).find(key => connectedUsers[key] === data.reciever);
+
+        io.to(id).emit('message', data);
+
+        //send to all
+        //socket.broadcast.emit('message', (data));
+    });
 
     // socket.on('typing', (data) => {
     //     socket.broadcast.emit('typing', (data));
