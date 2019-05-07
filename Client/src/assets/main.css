@@ -74,12 +74,26 @@ body {
     justify-content: center;
 }
 
-#search-chat>input {
-    width: 90%;
+.search-input-wrapper {
+    border-radius: 18px;
+    border: 2px solid #eeeeee;
+    width: 270px;
+    display: flex;
+    justify-content: center;
+}
+
+.search-input-wrapper>input {
+    width: 220px;
+    height: 29px;
+    border: none;
+    outline: none;
+    border-radius: 18px;
+    
 }
 
 #chatting-users {
     box-sizing: border-box;
+    min-height: 50px;
 }
 
 .chatting-user {
@@ -107,6 +121,7 @@ div.chatting-user:active {
 
 #left-side-2 {
     height: 100%;
+    overflow: hidden;
 }
 
 #hide-online-users {
@@ -115,15 +130,19 @@ div.chatting-user:active {
     background-repeat: no-repeat;
     height: 25px;
     width: 25px;
-    margin-left: 245px;
+    margin-left: 10px;
+    margin-right: 68px;
 }
 
 #hide-online-users-wrapper {
     display: flex;
+    flex-direction: row;
     align-items: center;
     padding-left: 10px;
     min-height: 48px;
     background: #5682a3;
+    color: white;
+    font-size: 18px;
 }
 
 #online-users {
@@ -162,10 +181,13 @@ div.online-user:hover {
     border-bottom: 2px solid #E9EBED;
     height: 100%;
     padding-left: 10px;
+    min-height: 50px;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 #msg-input {
-    min-height: 43px;
+    min-height: 50px;
     width: 100%;
     display: flex;
     align-items: center;

@@ -14,7 +14,9 @@
           <div id="show-online-users" @click="ShowOnlineUsers"></div>
         </div>
         <div class="search">
-          <input type="search" autocomplete="off" value="Муляж..." dir="auto">
+          <div class="search-input-wrapper">
+            <input type="search" autocomplete="off" title="Муляж..." dir="auto">
+          </div>
         </div>
         <div id="chatting-users" class="scrollbar">
           <div
@@ -34,9 +36,12 @@
       <div id="left-side-2" v-else key="2">
         <div id="hide-online-users-wrapper">
           <div id="hide-online-users" @click="ShowOnlineUsers"></div>
+          <div>Новый чат</div>
         </div>
         <div class="search">
-          <input type="search" autocomplete="off" value="Муляж..." dir="auto">
+          <div class="search-input-wrapper">
+            <input type="search" autocomplete="off" title="Муляж..." dir="auto">
+          </div>
         </div>
         <div id="online-users" class="scrollbar" tabindex="-1">
           <div
