@@ -1,6 +1,6 @@
 <template>
   <div id="main">
-    <div id="my-head">
+    <div id="left-side">
       <div id="owner-info">
         <!-- <div id="owner-foto">Foto</div> -->
         <div id="owner-n-s">
@@ -11,8 +11,41 @@
           <small v-if="typing" style="color:white">{{typing}} is typing</small>
         </div>
         <!-- <button @click="ShowOnlineUsers">Toggle</button> -->
-        <div id="new-chat" @click="ShowOnlineUsers"></div>
+        <div id="show-online-users" @click="ShowOnlineUsers">NEW</div>
       </div>
+      <div id="search-chat">
+        <input type="search" autocomplete="off" value="Муляж..." dir="auto">
+      </div>
+      <div id="chatting-users" class="scrollbar" v-if="show" key="1">
+        <div
+          tabindex="-1"
+          class="chatting-user"
+          v-for="(value, index) in chattingUsers"
+          :key="index"
+          @click="SelectUserForChatting(false, value.id, value.name)"
+        >
+          <div class="chatting-user-n-s">
+            <div class="chatting-user-name">{{value.name}}</div>
+            <div class="chatting-user-status">{{value.id}}</div>
+          </div>
+        </div>
+      </div>
+      <div id="online-users" class="scrollbar" v-else key="2">
+        <div
+          class="online-user"
+          v-for="(value, index) in onlineUsers"
+          :key="index"
+          @click="SelectUserForChatting(true, value.id, value.name)"
+        >
+          <!-- <div id="chat-info-foto">Foto</div> -->
+          <div class="online-user-n-s">
+            <div class="online-user-name">{{value.name}}</div>
+            <div class="online-user-status">{{value.id}}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="right-side">
       <div
         id="current-chatting-user-info"
         v-for="(value, index) in currentChattingUser"
@@ -24,61 +57,25 @@
           <div id="current-chatting-user-info-status">{{value.status}}</div>
         </div>
       </div>
-    </div>
-    <div id="my-body">
-      <div id="left-side">
-        <div id="search-chat">
-          <input type="search" autocomplete="off" value="Муляж..." dir="auto">
-        </div>
-        <div id="chatting-users" class="scrollbar" v-if="show" key="1">
-          <div
-            tabindex="-1"
-            class="chatting-user"
-            v-for="(value, index) in chattingUsers"
-            :key="index"
-            @click="SelectUserForChatting(false, value.id, value.name)"
-          >
-            <!-- <div id="chat-info-foto">Foto</div> -->
-            <div class="chatting-user-n-s">
-              <div class="chatting-user-name">{{value.name}}</div>
-              <div class="chatting-user-status">{{value.id}}</div>
-            </div>
-          </div>
-        </div>
-        <div id="online-users" class="scrollbar" v-else key="2">
-          <div
-            class="online-user"
-            v-for="(value, index) in onlineUsers"
-            :key="index"
-            @click="SelectUserForChatting(true, value.id, value.name)"
-          >
-            <!-- <div id="chat-info-foto">Foto</div> -->
-            <div class="online-user-n-s">
-              <div class="online-user-name">{{value.name}}</div>
-              <div class="online-user-status">{{value.id}}</div>
-            </div>
+      <div id="right-bottom">
+      <div id="chatting-area" class="scrollbar">
+        <!-- <div id="chat-room" v-for="(value, index) in chatrooms" :key="index"> -->
+        <div id="chat-room">
+          <div v-for="(value, index) in messages" :key="index">
+            <p>
+              <span class="font-weight-bold">{{ value.msg_from }}:</span>
+              {{ value.msg }}
+            </p>
           </div>
         </div>
       </div>
-      <div id="right-side">
-        <div id="chatting-area" class="scrollbar">
-          <!-- <div id="chat-room" v-for="(value, index) in chatrooms" :key="index"> -->
-          <div id="chat-room">
-            <div v-for="(value, index) in messages" :key="index">
-              <p>
-                <span class="font-weight-bold">{{ value.msg_from }}:</span>
-                {{ value.msg }}
-              </p>
-            </div>
+      <div id="msg-input">
+        <form @submit.prevent="sendMessage">
+          <div>
+            <input type="text" v-model="newMessage" placeholder="Новое сообщение...">
           </div>
-        </div>
-        <div id="input-text">
-          <form @submit.prevent="sendMessage">
-            <div>
-              <input type="text" v-model="newMessage" placeholder="Новое сообщение...">
-            </div>
-          </form>
-        </div>
+        </form>
+      </div>
       </div>
     </div>
   </div>
