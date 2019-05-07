@@ -5,11 +5,12 @@ html {
 
 body {
     position: absolute;
+    height: 97%;
     top: 0;
     bottom: 0;
     left: 0;
     right: 0;
-    margin-bottom: 100px;
+    margin-bottom: 20px;
     background: #e7ebf0;
 }
 
@@ -30,7 +31,7 @@ body {
     flex-direction: row;
     align-items: center;
     padding-left: 10px;
-    box-sizing: border-box;
+    /* box-sizing: border-box; */
     min-height: 48px;
     color: white;
     background: #5682a3;
@@ -38,6 +39,11 @@ body {
 
 #show-online-users {
     cursor: pointer;
+    background-image: url("..//assets/online.png");
+    background-repeat: no-repeat;
+    height: 25px;
+    width: 25px;
+    margin-left: 160px;
 }
 
 #current-chatting-user-info {
@@ -52,16 +58,16 @@ body {
 }
 
 #left-side {
-    border-right: 1px solid rgb(218, 215, 215);
     height: 100%;
     width: 30%;
     min-width: 300px;
     display: flex;
     flex-direction: column;
+    border-right: 2px solid #E9EBED;
 }
 
-#search-chat {
-    border-bottom: 1px solid rgb(218, 215, 215);
+.search {
+    border-bottom: 2px solid #E9EBED;
     min-height: 48px;
     display: flex;
     align-items: center;
@@ -99,8 +105,30 @@ div.chatting-user:active {
     background-color: cornflowerblue;
 }
 
+#left-side-2 {
+    height: 100%;
+}
+
+#hide-online-users {
+    cursor: pointer;
+    background-image: url("..//assets/back.png");
+    background-repeat: no-repeat;
+    height: 25px;
+    width: 25px;
+    margin-left: 245px;
+}
+
+#hide-online-users-wrapper {
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    min-height: 48px;
+    background: #5682a3;
+}
+
 #online-users {
     background-color: coral;
+    height: 100%;
 }
 
 .online-user {
@@ -131,7 +159,7 @@ div.online-user:hover {
 }
 
 #chatting-area {
-    border-bottom: 1px solid rgb(218, 215, 215);
+    border-bottom: 2px solid #E9EBED;
     height: 100%;
     padding-left: 10px;
 }
@@ -159,10 +187,10 @@ div.online-user:hover {
 }
 
 .scrollbar::-webkit-scrollbar {
-    width: 1px;
+    width: 0px;
     background-color: lightslategray;
 }
 
 .scrollbar::-webkit-scrollbar-thumb {
-    background-color: lightslategray;
+    background-color: #E9EBED;
 }
