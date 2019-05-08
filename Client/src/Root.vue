@@ -1,79 +1,103 @@
 <template>
   <div id="main">
-    <div id="left-side">
-      <div id="left-side-1" v-if="show" key="1">
-        <div id="owner-info">
-          <!-- <div id="owner-foto">Foto</div> -->
-          <div id="owner-n-s">
-            <div id="owner-name">
-              <span dir="auto">{{username}}</span>
+    <div id="main-1">
+      <div id="left-side">
+        <div id="left-side-1" v-if="show" key="1">
+          <div id="owner-info">
+            <div id="owner-info-1">
+              <div class="display-flex-dir-row">
+                <div id="owner-foto"></div>
+                <div class="display-flex-dir-column">
+                  <div id="owner-name">
+                    <span dir="auto">{{username}}</span>
+                  </div>
+                  <div id="owner-status">Статус!</div>
+                </div>
+              </div>
             </div>
-            <div id="owner-status">Owner Status</div>
-            <small v-if="typing" style="color:white">{{typing}} is typing</small>
+            <div id="show-online-users" @click="ShowOnlineUsers"></div>
           </div>
-          <div id="show-online-users" @click="ShowOnlineUsers"></div>
-        </div>
-        <div class="search">
-          <div class="search-input-wrapper">
-            <input type="search" autocomplete="off" title="Муляж..." dir="auto">
+          <div id="search-chat">
+            <input
+              type="search"
+              autocomplete="off"
+              title="Поиск или новый чат"
+              value="Поиск или новый чат"
+              dir="auto"
+            >
+          </div>
+          <div id="chat-list">
+            <div
+              class="chat"
+              :class="[module]"
+              tabindex="-1"
+              v-for="(value, index) in chattingUsers"
+              :key="index"
+              @click="SelectUserForChatting(false, value.id, value.name)"
+            >
+              <div class="display-flex-dir-row">
+                <div class="chat-foto"></div>
+                <div class="chat-name-status">
+                  <div class="chat-name">
+                    <span dir="auto">{{value.name}}</span>
+                  </div>
+                  <div class="chat-status">Статус!</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <div id="chatting-users" class="scrollbar">
-          <div
-            tabindex="-1"
-            class="chatting-user"
-            v-for="(value, index) in chattingUsers"
-            :key="index"
-            @click="SelectUserForChatting(false, value.id, value.name)"
-          >
-            <div class="chatting-user-n-s">
-              <div class="chatting-user-name">{{value.name}}</div>
-              <div class="chatting-user-status">{{value.id}}</div>
+        <div id="left-side-2" v-else key="2">
+          <div id="hide-online-users-wrapper">
+            <div id="hide-online-users" @click="ShowOnlineUsers"></div>
+            <div>Новый чат</div>
+          </div>
+          <div id="search-chat">
+            <input
+              type="search"
+              autocomplete="off"
+              title="Поиск или новый чат"
+              value="Поиск или новый чат"
+              dir="auto"
+            >
+          </div>
+          <div id="online-list">
+            <div
+              class="chat"
+              v-for="(value, index) in onlineUsers"
+              :key="index"
+              @click="SelectUserForChatting(true, value.id, value.name)"
+            >
+              <div class="display-flex-dir-row">
+                <div class="chat-foto"></div>
+                <div class="chat-name-status">
+                  <div class="chat-name">
+                    <span dir="auto">{{value.name}}</span>
+                  </div>
+                  <div class="chat-status">{{value.id}}</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <div id="left-side-2" v-else key="2">
-        <div id="hide-online-users-wrapper">
-          <div id="hide-online-users" @click="ShowOnlineUsers"></div>
-          <div>Новый чат</div>
-        </div>
-        <div class="search">
-          <div class="search-input-wrapper">
-            <input type="search" autocomplete="off" title="Муляж..." dir="auto">
-          </div>
-        </div>
-        <div id="online-users" class="scrollbar" tabindex="-1">
-          <div
-            class="online-user"
-            v-for="(value, index) in onlineUsers"
-            :key="index"
-            @click="SelectUserForChatting(true, value.id, value.name)"
-          >
-            <!-- <div id="chat-info-foto">Foto</div> -->
-            <div class="online-user-n-s">
-              <div class="online-user-name">{{value.name}}</div>
-              <div class="online-user-status">{{value.id}}</div>
+      <div id="right-side">
+        <div id="chat-info" v-for="(value, index) in currentChattingUser" :key="index">
+          <div id="owner-info">
+            <div id="owner-info-1">
+              <div class="display-flex-dir-row">
+                <div id="owner-foto"></div>
+                <div class="display-flex-dir-column">
+                  <div id="owner-name">
+                    <span dir="auto">{{value.name}}</span>
+                  </div>
+                  <div id="owner-status">{{value.status}}</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
-    <div id="right-side">
-      <div
-        id="current-chatting-user-info"
-        v-for="(value, index) in currentChattingUser"
-        :key="index"
-      >
-        <!-- <div id="chat-info-foto">Foto</div> -->
-        <div id="current-chatting-user-info-n-s">
-          <div id="current-chatting-user-info-name">{{value.name}}</div>
-          <div id="current-chatting-user-info-status">{{value.status}}</div>
-        </div>
-      </div>
-      <div id="right-bottom">
-        <div id="chatting-area" class="scrollbar">
-          <!-- <div id="chat-room" v-for="(value, index) in chatrooms" :key="index"> -->
+        <div id="chatting-area">
           <div id="chat-room">
             <div v-for="(value, index) in messages" :key="index">
               <p>
@@ -83,7 +107,12 @@
             </div>
           </div>
         </div>
-        <div id="msg-input">
+        <div id="text-input">
+          <!-- <div id="text-input-1">
+                        <div id="smiles"></div>
+                        <div id="text-input-div" contenteditable="true" dir="ltr">Введите сообщение...</div>
+                        <div id="smiles"></div>
+          </div>-->
           <form @submit.prevent="sendMessage">
             <div>
               <input type="text" v-model="newMessage" placeholder="Новое сообщение...">
@@ -114,7 +143,8 @@ export default {
       show: true,
       onlineUsers: [],
       currentChattingUser: [],
-      chattingUsers: []
+      chattingUsers: [],
+      module_class: "white"
     };
   },
   watch: {
@@ -125,7 +155,16 @@ export default {
     //   }, 800);
     // }
   },
-
+  computed: {
+    module: {
+      get() {
+        return this.$style[this.module_class];
+      },
+      set(new_class) {
+        this.module_class = new_class;
+      }
+    }
+  },
   created() {
     this.username = window.prompt("Enter Your User Name");
 
@@ -237,6 +276,8 @@ export default {
     },
 
     SelectUserForChatting(pFromOnlineUsers, pId, pName) {
+      this.module_class = "blue";
+
       if (pFromOnlineUsers) {
         this.show = true;
         db.chatting_users.put({ id: pId, name: pName });
@@ -268,4 +309,12 @@ export default {
 
 <style>
 @import "./assets/main.css";
+</style>
+<style module>
+.blue {
+  background-color: #6490b1;
+}
+.white {
+  background-color: white;
+}
 </style>
