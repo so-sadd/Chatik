@@ -3,35 +3,7 @@
     <div id="main-1">
       <div id="left-side">
         <div id="left-side-1" v-if="show" key="1">
-          <div id="owner-info">
-            <div id="owner-info-1">
-              <div class="display-flex-dir-row">
-                <div id="owner-foto"></div>
-                <div class="display-flex-dir-column">
-                  <div id="owner-name">
-                    <span dir="auto">{{username}}</span>
-                  </div>
-                  <div id="owner-status">Статус!</div>
-                </div>
-              </div>
-            </div>
-            <!-- <div id="show-online-users" @click="ShowOnlineUsers"></div> -->
-            <div id="show-online-users" @click="ShowOnlineUsers">
-              <svg
-                id="Layer_1"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                width="24"
-                height="24"
-              >
-                <path
-                  opacity=".55"
-                  fill="#263238"
-                  d="M19.005 3.175H4.674C3.642 3.175 3 3.789 3 4.821V21.02l3.544-3.514h12.461c1.033 0 2.064-1.06 2.064-2.093V4.821c-.001-1.032-1.032-1.646-2.064-1.646zm-4.989 9.869H7.041V11.1h6.975v1.944zm3-4H7.041V7.1h9.975v1.944z"
-                ></path>
-              </svg>
-            </div>
-          </div>
+          <OwnerInfo :user_name="username"/>
           <div id="search-chat">
             <input
               type="search"
@@ -63,21 +35,7 @@
           </div>
         </div>
         <div id="left-side-2" v-else key="2">
-          <div id="hide-online-users-wrapper">
-            <div id="hide-online-users" @click="ShowOnlineUsers">
-              <svg
-                id="Layer_1"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                width="24"
-                height="24"
-              >
-                <path fill="#FFF" d="M20 11H7.8l5.6-5.6L12 4l-8 8 8 8 1.4-1.4L7.8 13H20v-2z"></path>
-              </svg>
-            </div>
-
-            <div id="hide-online-users-text">Новый чат</div>
-          </div>
+          <HideOnlineUsersButton/>
           <div id="search-chat">
             <input
               type="search"
@@ -87,25 +45,7 @@
               dir="auto"
             >
           </div>
-          <div id="online-list">
-            <div id="new-group">
-              <div id="new-group-icon">
-                <svg
-                  id="Layer_1"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 32 32"
-                  width="32"
-                  height="32"
-                >
-                  <path
-                    fill="#FFF"
-                    d="M15.313 15.672c2.401 0 4.237-1.835 4.237-4.235S17.713 7.2 15.313 7.2s-4.235 1.836-4.235 4.237 1.834 4.235 4.235 4.235zm9.349-.64c1.571 0 2.773-1.201 2.773-2.772 0-1.571-1.202-2.773-2.773-2.773s-2.772 1.202-2.772 2.773c0 1.571 1.201 2.772 2.772 2.772zm-1.724 5.841a7.856 7.856 0 0 0-.889-1.107 8.074 8.074 0 0 0-1.825-1.413 9.05 9.05 0 0 0-.675-.346l-.021-.009c-1.107-.502-2.5-.851-4.232-.851-1.732 0-3.124.349-4.232.851l-.112.054a9.247 9.247 0 0 0-.705.374 8.137 8.137 0 0 0-1.705 1.341 7.991 7.991 0 0 0-.656.773 8.584 8.584 0 0 0-.233.334c-.063.095-.116.184-.164.263l-.012.02a4.495 4.495 0 0 0-.213.408v2.276h16.061v-2.276s-.07-.164-.225-.427a4.257 4.257 0 0 0-.162-.265zm1.724-4.357c-1.333 0-2.376.3-3.179.713a9.409 9.409 0 0 1 1.733 1.218c1.402 1.25 1.959 2.503 2.017 2.641l.021.049h4.954v-1.571s-1.294-3.05-5.546-3.05zM9.41 13.78H6.261v-3.152H4.344v3.152H1.2v1.918h3.144v3.145h1.917v-3.145H9.41V13.78z"
-                  ></path>
-                </svg>
-              </div>
-              <div id="new-group-text">Новая группа</div>
-            </div>
-          </div>
+          <NewGroupButton/>
           <div
             class="chat"
             v-for="(value, index) in onlineUsers"
@@ -163,21 +103,7 @@
               >
             </div>
           </div>
-          <div id="show-emoji" @mousedown.prevent="toggleEmojiPicker">
-            <svg
-              id="Layer_1"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              width="24"
-              height="24"
-            >
-              <path
-                opacity=".45"
-                fill="#263238"
-                d="M9.153 11.603c.795 0 1.439-.879 1.439-1.962s-.644-1.962-1.439-1.962-1.439.879-1.439 1.962.644 1.962 1.439 1.962zm-3.204 1.362c-.026-.307-.131 5.218 6.063 5.551 6.066-.25 6.066-5.551 6.066-5.551-6.078 1.416-12.129 0-12.129 0zm11.363 1.108s-.669 1.959-5.051 1.959c-3.505 0-5.388-1.164-5.607-1.959 0 0 5.912 1.055 10.658 0zM11.804 1.011C5.609 1.011.978 6.033.978 12.228s4.826 10.761 11.021 10.761S23.02 18.423 23.02 12.228c.001-6.195-5.021-11.217-11.216-11.217zM12 21.354c-5.273 0-9.381-3.886-9.381-9.159s3.942-9.548 9.215-9.548 9.548 4.275 9.548 9.548c-.001 5.272-4.109 9.159-9.382 9.159zm3.108-9.751c.795 0 1.439-.879 1.439-1.962s-.644-1.962-1.439-1.962-1.439.879-1.439 1.962.644 1.962 1.439 1.962z"
-              ></path>
-            </svg>
-          </div>
+          <ShowEmojisButton/>
           <div
             @keyup.enter="sendMessage"
             @keydown.enter.prevent
@@ -212,10 +138,22 @@ import io from "socket.io-client";
 import db from "./db.js";
 import push from "push.js";
 
+import HideOnlineUsersButton from "./components/HideOnlineUsersButton.vue";
+import ShowEmojisButton from "./components/ShowEmojisButton.vue";
+import NewGroupButton from "./components/NewGroupButton.vue";
+import OwnerInfo from "./components/OwnerInfo.vue";
+
 let socket;
 let inputName;
 
 export default {
+  components: {
+    HideOnlineUsersButton,
+    ShowEmojisButton,
+    NewGroupButton,
+    OwnerInfo
+  },
+
   data() {
     return {
       newMessage: null,
@@ -363,7 +301,7 @@ export default {
         }
       });
     },
-    toggleEmojiPicker() {
+    ShowEmojis() {
       this.showEmojiPicker = !this.showEmojiPicker;
     },
     addEmoji(ref) {
