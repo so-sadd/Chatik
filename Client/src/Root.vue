@@ -3,20 +3,26 @@
     <div id="main-1">
       <div id="left-side">
         <div id="left-side-1" v-if="show" key="1">
-          <OwnerInfo :user_name="username"/>
+          <div id="owner-info">
+            <div id="owner-info-1">
+              <div class="display-flex-dir-row">
+                <div id="owner-foto"></div>
+                <div class="display-flex-dir-column">
+                  <div id="owner-name">{{username}}</div>
+                  <div id="owner-status">Статус!</div>
+                </div>
+              </div>
+            </div>
+            <div id="show-online-users" @click="ShowOnlineUsers">
+              <ShowOnlineUsersSvg/>
+            </div>
+          </div>
           <div id="search-chat">
-            <input
-              type="search"
-              autocomplete="off"
-              title="Поиск или новый чат"
-              value="Поиск или новый чат"
-              dir="auto"
-            >
+            <input type="search" autocomplete="off" placeholder="Поиск...">
           </div>
           <div id="chat-list">
             <div
               class="chat"
-              :class="[module]"
               tabindex="-1"
               v-for="(value, index) in chattingUsers"
               :key="index"
@@ -35,17 +41,24 @@
           </div>
         </div>
         <div id="left-side-2" v-else key="2">
-          <HideOnlineUsersButton/>
-          <div id="search-chat">
-            <input
-              type="search"
-              autocomplete="off"
-              title="Поиск или новый чат"
-              value="Поиск или новый чат"
-              dir="auto"
-            >
+          <div id="hide-online-users-wrapper">
+            <div id="hide-online-users" @click="ShowOnlineUsers">
+              <HideOnlineUsersSvg/>
+            </div>
+
+            <div id="hide-online-users-text">Новый чат</div>
           </div>
-          <NewGroupButton/>
+          <div id="search-chat">
+            <input type="search" autocomplete="off" placeholder="Поиск...">
+          </div>
+          <div id="online-list">
+            <div id="new-group">
+              <div id="new-group-icon">
+                <NewGroupSvg/>
+              </div>
+              <div id="new-group-text">Новая группа</div>
+            </div>
+          </div>
           <div
             class="chat"
             v-for="(value, index) in onlineUsers"
@@ -73,18 +86,13 @@
                 <div id="owner-name">
                   <span dir="auto">{{value.name}}</span>
                 </div>
-                <div id="owner-status">{{value.status}}</div>
+                <div id="owner-status">Статус!</div>
               </div>
             </div>
           </div>
         </div>
         <div id="chatting-area">
           <div id="message" v-for="(value, index) in messages" :key="index">
-            <!-- <p>
-                <span class="font-weight-bold">{{ value.msg_from }}:</span>
-                {{ value.msg }}
-            </p>-->
-            <!-- <div id="triangle"></div> -->
             <p>
               <span v-html="value.msg"></span>
             </p>
@@ -92,40 +100,19 @@
         </div>
 
         <div id="text-input">
-          <div id="emojis" v-show="showEmojiPicker">
-            <div v-for="(value, index) in emojis" :key="index">
-              <img
-                v-bind:src="value.src"
-                @click="addEmoji(value.src)"
-                width="30px"
-                height="30px"
-                alt="Смайлик"
-              >
-            </div>
+          <EmojiPicker :show-emoji-picker="showEmojiPickerFlag"/>
+          <div id="show-emoji" @mousedown.prevent="ShowEmojiPicker">
+            <ShowEmojiPickerSvg/>
           </div>
-          <ShowEmojisButton/>
           <div
-            @keyup.enter="sendMessage"
+            id="textarea"
+            @keyup.enter="SendMessage"
             @keydown.enter.prevent
             contenteditable="true"
-            id="textarea"
             v-html="textInput"
-            @focusout="updateTextInput"
           ></div>
           <div id="attach-file">
-            <svg
-              id="Layer_1"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              width="24"
-              height="24"
-            >
-              <path
-                fill="#263238"
-                fill-opacity="0.5"
-                d="M1.816 15.556v.002c0 1.502.584 2.912 1.646 3.972s2.472 1.647 3.974 1.647a5.58 5.58 0 0 0 3.972-1.645l9.547-9.548c.769-.768 1.147-1.767 1.058-2.817-.079-.968-.548-1.927-1.319-2.698-1.594-1.592-4.068-1.711-5.517-.262l-7.916 7.915c-.881.881-.792 2.25.214 3.261.959.958 2.423 1.053 3.263.215l5.511-5.512c.28-.28.267-.722.053-.936l-.244-.244c-.191-.191-.567-.349-.957.04l-5.506 5.506c-.18.18-.635.127-.976-.214-.098-.097-.576-.613-.213-.973l7.915-7.917c.818-.817 2.267-.699 3.23.262.5.501.802 1.1.849 1.685.051.573-.156 1.111-.589 1.543l-9.547 9.549a3.97 3.97 0 0 1-2.829 1.171 3.975 3.975 0 0 1-2.83-1.173 3.973 3.973 0 0 1-1.172-2.828c0-1.071.415-2.076 1.172-2.83l7.209-7.211c.157-.157.264-.579.028-.814L11.5 4.36a.572.572 0 0 0-.834.018l-7.205 7.207a5.577 5.577 0 0 0-1.645 3.971z"
-              ></path>
-            </svg>
+            <AttachNewFileSvg/>
           </div>
         </div>
       </div>
@@ -138,22 +125,27 @@ import io from "socket.io-client";
 import db from "./db.js";
 import push from "push.js";
 
-import HideOnlineUsersButton from "./components/HideOnlineUsersButton.vue";
-import ShowEmojisButton from "./components/ShowEmojisButton.vue";
-import NewGroupButton from "./components/NewGroupButton.vue";
-import OwnerInfo from "./components/OwnerInfo.vue";
+//Components
+import EmojiPicker from "./components/EmojiPicker.vue";
+
+//SVGs
+import ShowOnlineUsersSvg from "./components/svg/ShowOnlineUsersSvg.vue";
+import HideOnlineUsersSvg from "./components/svg/HideOnlineUsersSvg.vue";
+import NewGroupSvg from "./components/svg/NewGroupSvg.vue";
+import ShowEmojiPickerSvg from "./components/svg/ShowEmojiPickerSvg.vue";
+import AttachNewFileSvg from "./components/svg/AttachNewFileSvg.vue";
 
 let socket;
-let inputName;
 
 export default {
   components: {
-    HideOnlineUsersButton,
-    ShowEmojisButton,
-    NewGroupButton,
-    OwnerInfo
+    ShowOnlineUsersSvg,
+    HideOnlineUsersSvg,
+    NewGroupSvg,
+    ShowEmojiPickerSvg,
+    AttachNewFileSvg,
+    EmojiPicker
   },
-
   data() {
     return {
       newMessage: null,
@@ -167,35 +159,8 @@ export default {
       currentChattingUser: [],
       chattingUsers: [],
       module_class: "white",
-      showEmojiPicker: false,
-      textInput: "",
-      emojis: [
-        { src: require("@/assets/Faces/1.png") },
-        { src: require("@/assets/Faces/2.png") },
-        { src: require("@/assets/Faces/3.png") },
-        { src: require("@/assets/Faces/4.png") },
-        { src: require("@/assets/Faces/5.png") },
-        { src: require("@/assets/Faces/6.png") },
-        { src: require("@/assets/Faces/7.png") },
-        { src: require("@/assets/Faces/8.png") },
-        { src: require("@/assets/Faces/9.png") },
-        { src: require("@/assets/Faces/11.png") },
-        { src: require("@/assets/Faces/12.png") },
-        { src: require("@/assets/Faces/13.png") },
-        { src: require("@/assets/Faces/14.png") },
-        { src: require("@/assets/Faces/15.png") },
-        { src: require("@/assets/Faces/16.png") },
-        { src: require("@/assets/Faces/17.png") },
-        { src: require("@/assets/Faces/18.png") },
-        { src: require("@/assets/Faces/19.png") },
-        { src: require("@/assets/Faces/20.png") },
-        { src: require("@/assets/Faces/21.png") },
-        { src: require("@/assets/Faces/22.png") },
-        { src: require("@/assets/Faces/23.png") },
-        { src: require("@/assets/Faces/24.png") },
-        { src: require("@/assets/Faces/25.png") },
-        { src: require("@/assets/Faces/26.png") }
-      ]
+      showEmojiPickerFlag: false,
+      textInput: ""
     };
   },
   watch: {
@@ -206,22 +171,18 @@ export default {
     //   }, 800);
     // }
   },
-  computed: {
-    module: {
-      get() {
-        return this.$style[this.module_class];
-      },
-      set(new_class) {
-        this.module_class = new_class;
-      }
-    }
-  },
+  computed: {},
   created() {
-    this.username = window.prompt("Enter Your User Name");
+    //this.username = window.prompt("Enter Your User Name");
 
     socket = io("localhost:1919", { reconnection: false });
+    // socket.emit("joined", this.username);
 
-    socket.emit("joined", this.username);
+    socket.emit("os-user-name", name => {
+      this.username = name;
+
+      socket.emit("joined", this.username);
+    });
 
     window.onbeforeunload = () => {
       db.delete();
@@ -256,7 +217,7 @@ export default {
           this.messages = data;
         });
 
-      this.notify(data.sender, data.message);
+      this.Notify(data.sender, data.message);
     });
 
     socket.on("joined", data => {
@@ -279,10 +240,6 @@ export default {
     });
   },
   mounted() {
-    // socket.emit("os-user-name", function(name) {
-    //   this.username = name;
-    // });
-
     socket.emit("connected-users", function(data) {
       for (let element in data) {
         db.online_users.put({ id: element, name: data[element] });
@@ -290,7 +247,7 @@ export default {
     });
   },
   methods: {
-    notify(sender_name, message) {
+    Notify(sender_name, message) {
       push.create(sender_name, {
         body: message,
         icon: "/logo.png",
@@ -301,19 +258,13 @@ export default {
         }
       });
     },
-    ShowEmojis() {
-      this.showEmojiPicker = !this.showEmojiPicker;
+    ShowEmojiPicker() {
+      this.showEmojiPickerFlag = !this.showEmojiPickerFlag;
     },
-    addEmoji(ref) {
-      this.textInput +=
-        "<img src=" + ref + " width='32' height='32' alt='emoji' />";
+    AddEmoji(ref) {
+      this.textInput += "<img src=" + ref + " width='30' height='30' /> ";
     },
-    updateTextInput: function(e) {
-      this.textInput = e.target.innerHTML;
-    },
-    sendMessage(e) {
-      //this.textInput = document.getElementById("textarea").innerHTML;
-
+    SendMessage(e) {
       this.textInput = e.target.innerHTML;
 
       socket.emit("message", {
@@ -344,9 +295,9 @@ export default {
           this.messages = data;
         });
 
+      e.target.innerHTML = "";
       this.textInput = "";
     },
-
     ShowOnlineUsers() {
       this.show = !this.show;
 
@@ -354,7 +305,6 @@ export default {
         this.onlineUsers = data;
       });
     },
-
     SelectUserForChatting(pFromOnlineUsers, pId, pName) {
       this.module_class = "blue";
 
@@ -389,12 +339,4 @@ export default {
 
 <style>
 @import "./assets/main.css";
-</style>
-<style module>
-.blue {
-  background-color: #6490b1;
-}
-.white {
-  background-color: white;
-}
 </style>
